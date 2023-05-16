@@ -27,11 +27,11 @@ def arithmetic_arranger(problems, show_answers=False):
             return "Error: Operator must be '+' or '-'."
 
         # Check if both operands consist of digits only.
-        if not first_operand.isdigit() and not second_operand.isdigit():
+        if not first_operand.isdigit() or not second_operand.isdigit():
             return "Error: Numbers must only contain digits."
 
         # Check if the length of any operand exceeds four digits.
-        if len(first_operand) > 4 and len(second_operand) > 4:
+        if len(first_operand) > 4 or len(second_operand) > 4:
             return "Error: Numbers cannot be more than four digits."
 
         # Determine the maximum length among the two operands and add two spaces to it --> width.
