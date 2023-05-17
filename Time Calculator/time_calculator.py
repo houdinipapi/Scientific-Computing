@@ -79,7 +79,7 @@ def add_time(start_time, end_time, day=False):
     remaining_mins = int(total_mins % 60)
 
     # String formatting
-    results = f"{remaining_hours}:{remaining_mins} {period.upper()}"
+    results = f"{remaining_hours}:{str(remaining_mins).zfill(2)} {period.upper()}"
     if day:  # --> Adding week-day
         day = day.strip().lower()
         selected_day = int((week_days.index(day) + days_later) % 7)
@@ -91,3 +91,11 @@ def add_time(start_time, end_time, day=False):
         results = " ".join((results, get_days_later(days_later)))
 
     return results.strip()
+
+
+print(add_time("3:00 PM", "3:10"))
+print(add_time("11:30 AM", "2:32", "Monday"))
+print(add_time("11:43 AM", "00:20"))
+print(add_time("10:10 PM", "3:30"))
+print(add_time("11:43 PM", "24:20", "tueSday"))
+print(add_time("6:30 PM", "205:12"))
