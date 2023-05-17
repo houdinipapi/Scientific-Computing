@@ -60,10 +60,10 @@ def create_spend_chart(categories):
         category_names.append(category.name)
 
     for i in range(100, -10, -10):
-        spent_line = str(i).rjust(3) + "| "
+        spent_line = str(i).rjust(3) + "|"
         for percent in spent_percentages:
             if percent >= i:
-                spent_line += "o  "
+                spent_line += " o "
             else:
                 spent_line += "   "
         spent_chart += spent_line + "\n"
@@ -82,3 +82,32 @@ def create_spend_chart(categories):
         spent_chart += name_line.rstrip() + " \n"
 
     return spent_chart
+
+
+# # Instantiate Category objects
+# food_category = Category("Food")
+# clothing_category = Category("Clothing")
+# auto_category = Category("Auto")
+#
+# # Perform operations on the categories
+# food_category.deposit(1000, "initial deposit")
+# food_category.withdraw(10.15, "groceries")
+# food_category.withdraw(15.89, "restaurant and more food")
+# food_category.transfer(50, clothing_category)
+#
+# clothing_category.deposit(500, "initial deposit")
+# clothing_category.withdraw(25.55, "shoes")
+# clothing_category.transfer(75, auto_category)
+#
+# auto_category.deposit(100, "initial deposit")
+# auto_category.withdraw(30, "fuel")
+#
+# # Print the categories
+# print(food_category)
+# print(clothing_category)
+# print(auto_category)
+#
+# # Create and print the spend chart
+# categories = [food_category, clothing_category, auto_category]
+# spend_chart = create_spend_chart(categories)
+# print(spend_chart)
