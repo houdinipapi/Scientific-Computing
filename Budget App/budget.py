@@ -1,87 +1,88 @@
 class Category:
-    def __init__(self, name):
-        self.name = name
+    def __init__(self, description):
+        self.description = description
         self.ledger = list()
+        self.balance = 0.0
+
+    def __repr__(self):
+        hdr = self.description.center(30, "*") + "\n"
+        ledger = ""
+        for i in self.ledger:
+            # Description and amount formatting
+            line_description = "{:<23}".format(i["description"])
+            line_amount = "{:>7.2f}".format(i["amount"])
+
+            # Ledger description truncation
+            ledger += "{}{}\n".format(line_description[:23], line_amount[:7])
+
+        total = "Total: {:.2f}".format(self.balance)
+        return hdr + ledger + total
 
     def deposit(self, amount, description=""):
         self.ledger.append({"amount": amount, "description": description})
+        self.balance = self.balance + amount
 
     def withdraw(self, amount, description=""):
-        if self.check_funds(amount):
-            self.ledger.append({"amount": -amount, "description": description})
+        if self.balance - amount >= 0:
+            self.ledger.append({"amount": -1 * amount, "description": description})
+            self.balance = self.balance - amount
             return True
         else:
             return False
 
     def get_balance(self):
-        balance = 0
-        for item in self.ledger:
-            balance += item["amount"]
-        return balance
+        return self.balance
 
-    def transfer(self, amount, category):
-        if self.check_funds(amount):
-            self.withdraw(amount, f"Transfer to {category.name}")
-            category.deposit(amount, f"Transfer from {self.name}")
+    def transfer(self, amount, category_instance):
+        if self.withdraw(amount, "Transfer to {}".format(category_instance.description)):
+            category_instance.deposit(amount, "Transfer from {}".format(self.description))
             return True
         else:
             return False
 
     def check_funds(self, amount):
-        return amount <= self.get_balance()
-
-    def __str__(self):
-        title = f"{self.name:*^30}\n"
-        items = ""
-        total = 0
-
-        for item in self.ledger:
-            description = item["description"][:23].ljust(23)
-            amount = format(item["amount"], ".2f").rjust(7)
-            items += f"{description}{amount}\n"
-            total += item["amount"]
-
-        output = title + items + f"Total: {total:.2f}"
-        return output
+        if self.balance >= amount:
+            return True
+        else:
+            return False
 
 
 def create_spend_chart(categories):
-    category_names = list()
-    spent_percentages = list()
-    spent_chart = "Percentage spent by category\n"
+    amount_spent = list()
 
+    # Total spent for each category
     for category in categories:
-        total_spent = 0
-        for item in category.ledger:
-            if item["amount"] < 0:
-                total_spent -= item["amount"]
-        spent_percent = total_spent / category.get_balance() * 100
-        spent_percentages.append(spent_percent)
-        category_names.append(category.name)
+        spent = 0
+        for i in category.ledger:
+            if i["amount"] < 0:
+                spent = spent + abs(i["amount"])
+        amount_spent.append(round(spent, 2))
 
-    for i in range(100, -10, -10):
-        spent_line = str(i).rjust(3) + "|"
-        for percent in spent_percentages:
-            if percent >= i:
-                spent_line += " o "
+    # Calculating % --> round down to the nearest 10
+    total = round(sum(amount_spent), 2)
+    percentage_spent = list(map(lambda amount: int((((amount / total) * 10) // 1) * 10), amount_spent))
+
+    # Creating the bar chart substrings
+    hdr = "Percentage spent by category\n"
+
+    chart = ""
+    for value in reversed(range(0, 101, 10)):
+        chart = chart + str(value).rjust(3) + "|"
+        for percent in percentage_spent:
+            if percent >= value:
+                chart = chart + " o "
             else:
-                spent_line += "   "
-        spent_chart += spent_line + "\n"
+                chart = chart + "   "
+        chart = chart + " \n"
 
-    spent_chart += "    " + "-" * (3 * len(category_names) + 1) + "\n"
+    footer = "    " + "-" * ((3 * len(categories)) + 1) + "\n"
+    descriptions = list(map(lambda category: category.description, categories))
+    length_max = max(map(lambda description: len(description), descriptions))
+    descriptions = list(map(lambda description: description.ljust(length_max), descriptions))
+    for x in zip(*descriptions):
+        footer = footer + "    " + "".join(map(lambda s: s.center(3), x)) + " \n"
 
-    max_name_length = max(len(name) for name in category_names)
-
-    for i in range(max_name_length):
-        name_line = "    "
-        for name in category_names:
-            if i < len(name):
-                name_line += name[i] + "  "
-            else:
-                name_line += "   "
-        spent_chart += name_line.rstrip() + " \n"
-
-    return spent_chart
+    return (hdr + chart + footer).rstrip("\n")
 
 
 # # Instantiate Category objects
@@ -111,3 +112,4 @@ def create_spend_chart(categories):
 # categories = [food_category, clothing_category, auto_category]
 # spend_chart = create_spend_chart(categories)
 # print(spend_chart)
+#
